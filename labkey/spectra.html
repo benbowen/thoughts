@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+    <title>One Graph</title>
+    <script type="text/javascript" src="http://mbostock.github.com/d3/d3.v2.js"></script>
+    <script type="text/javascript" src="simple-graph.js"></script>
+    <style type="text/css">
+      body { font: 13px sans-serif; }
+      rect { fill: white; }
+      .axis { font-size: 1.5em; }
+      .chart {
+        background-color: white;
+        width: 960px;
+        height: 500px; }
+      circle, .line {
+        fill: none;
+        stroke: black;
+        stroke-width: 3px; }
+      circle {
+        fill: white;
+        fill-opacity: 0.2; }
+        circle.selected {
+          fill: #ff7f0e;
+          stroke: black; }
+        circle:hover {
+          fill: #ff7f0e;
+          stroke: #707f0e; }
+        circle.selected:hover {
+          fill: #ff7f0e;
+          stroke: #ff7f0e; }
+         div.tooltip {	
+    position: absolute;			
+    text-align: center;			
+    width: 60px;					
+    height: 28px;					
+    padding: 2px;				
+    font: 12px sans-serif;		
+    background: lightsteelblue;	
+    border: 0px;		
+    border-radius: 8px;			
+    pointer-events: none;			
+}
+    </style>
+  </head>
+  <body>
+    <div id="chart1" class="chart"></div>
+    <script type="text/javascript">
+	  var data = 
+	  [
+	    { x:10 , y:20},
+	    { x:30 , y:30},
+	    { x:55 , y:15},
+	  ];
+
+      graph = new SimpleGraph("chart1", {
+      	  "data":data,
+          "xmax": 1.1* Math.max.apply(Math, data.map(function(d) { return d.x; })), "xmin": 0,
+          "ymax": 1.1*Math.max.apply(Math, data.map(function(d) { return d.y; })), "ymin": 0, 
+          "title": "compound xyz",
+          "xlabel": "m/z",
+          "ylabel": "intensity"  
+        });
+    </script>
+
+  </body>
+</html>
