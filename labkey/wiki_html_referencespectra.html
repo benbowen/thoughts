@@ -1,0 +1,143 @@
+<style type="text/css">
+      rect { fill: white; }
+      .axis { font-size: 1.5em; }
+      .chart {
+        background-color: white;
+        width: auto;
+        height: 400px; }
+      circle, .line {
+        fill: none;
+        stroke: black;
+        stroke-width: 3px; }
+      circle {
+        fill: white;
+        fill-opacity: 0.2; }
+        circle.selected {
+          fill: #ff7f0e;
+          stroke: black; }
+        circle:hover {
+          fill: #ff7f0e;
+          stroke: #707f0e; }
+        circle.selected:hover {
+          fill: #ff7f0e;
+          stroke: #ff7f0e; }
+         div.tooltip {  
+    position: absolute;         
+    text-align: center;         
+    width: 80px;                    
+    height: 30px;                   
+    padding: 2px;               
+    font: 11px sans-serif;      
+    background: lightsteelblue; 
+    border: 0px;        
+    border-radius: 8px;         
+    pointer-events: none;}
+</style>
+
+<div id="barcodes-container"></div>
+<div id="chart1" class="chart"></div>
+<div id="dataregion-container"></div>
+
+<script type="text/javascript" src="/_webdav/Metabolite%20Atlas/%40files/js_libs/d3.min.js"></script>
+<script type="text/javascript" src="/_webdav/Metabolite%20Atlas/%40files/js_libs/simple-graph.js"></script>
+
+<script type="text/javascript">
+
+    var SCHEMA_NAME = 'lists'; 
+
+    // change this to the name of your list
+    var QUERY_NAME = 'ReferenceMSMS';
+
+    // change this to the name of your column
+    var COLUMN_NAME = 'spectrum';
+
+    // place your list on the page and add a new button to top of the grid (add, delete, etc)
+    // handler function to read row and column
+    // when clicked, calls "handler"
+    LABKEY.QueryWebPart({
+        renderTo: 'dataregion-container',
+        schemaName: SCHEMA_NAME,
+        queryName: QUERY_NAME,
+        maxRows: 20,
+        frame: 'none',
+        buttonBar: {
+            includeStandardButtons: false,
+            items: [
+                {
+                    text: 'Generate Spectrum', handler: renderBarcodesHandler,
+                    requiresSelection: true
+                },
+                LABKEY.QueryWebPart.standardButtons.views,
+                LABKEY.QueryWebPart.standardButtons.exportRows
+            ]
+        }
+    });
+
+
+    // handler function
+    function renderBarcodesHandler(dataRegion) {
+        renderBarcode(dataRegion.selectionKey, dataRegion);
+    }
+
+    // task function
+    var renderBarcode = function (selectKey,dataRegion) {
+        var ct = document.getElementById('barcodes-container');
+        ct.innerHTML = "";
+        //grab rows from Data Region
+
+        LABKEY.Query.selectRows({
+            schemaName: SCHEMA_NAME,
+            queryName: QUERY_NAME,
+            columns: ['spectrum','name','polarity','database','column0'],
+            showRows: 'selected',
+            selectionKey: selectKey,
+            success: function (data) {
+                //find selected data cells
+                data.rows.forEach(function (row) {
+                    var msms_spectrum = row[COLUMN_NAME];
+                    if (msms_spectrum) {
+                        // wipe out container contents if any:
+                        document.getElementById('chart1').innerHTML = "";
+
+
+                        // create barcode and render
+                        // var div = document.createElement('div');
+                        // var svg = document.createElement('canvas');
+                        var id = LABKEY.Utils.id();
+                        // svg.setAttribute('id', id);
+                        // div.appendChild(svg);
+                        // ct.appendChild(div);
+                        // document.getElementById("barcodes-container").innerHTML=msms_spectrum
+                        x_array = eval(msms_spectrum)[0]
+                        y_array = eval(msms_spectrum)[1]
+                        // make it look like this:
+                        // [
+                        //     { x:10 , y:20},
+                        //     { x:30 , y:30},
+                        //     { x:55 , y:15},
+                        // ];
+                        var data = []
+                        for (var i = 0; i<x_array.length; i++)
+                        {
+                            data.push({x:x_array[i], y:y_array[i]})
+                        }
+
+
+                        graph = new SimpleGraph("chart1", {
+                          "data":data,
+                          "xmax": 1.1* Math.max.apply(Math, data.map(function(d) { return d.x; })),
+                          "xmin": 0.9* Math.min.apply(Math, data.map(function(d) { return d.x; })),
+                          "ymax": 1.1*Math.max.apply(Math, data.map(function(d) { return d.y; })), "ymin": 0, 
+                          "title": row['column0']+"; "+row['name']+"; "+row['polarity']+"; "+row['database'],
+                          "xlabel": "m/z",
+                          "ylabel": "intensity"  
+                        });
+                        dataRegion.clearSelected() 
+
+
+                    }
+                })
+            }
+        })
+    }
+</script>

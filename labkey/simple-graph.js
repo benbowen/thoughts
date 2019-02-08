@@ -3,12 +3,14 @@ registerKeyboardHandler = function(callback) {
   d3.select(window).on("keydown", callback);  
 };
 
-// Define the div for the tooltip
+// // Define the div for the tooltip
+
 
 
 
 // This seems like a much better zoom implementation:
 // http://bl.ocks.org/shawnbot/6518285
+
 function intersperseZeros(pointArray) { 
     var result = []; 
     pointArray.forEach(function(element) { 
@@ -22,6 +24,7 @@ function intersperseZeros(pointArray) {
     }); 
     return result; 
 }
+
 SimpleGraph = function(elemid, options) {
   var self = this;
   this.chart = document.getElementById(elemid);
@@ -36,8 +39,8 @@ SimpleGraph = function(elemid, options) {
   this.padding = {
      "top":    this.options.title  ? 40 : 20,
      "right":                 30,
-     "bottom": this.options.xlabel ? 60 : 10,
-     "left":   this.options.ylabel ? 70 : 45
+     "bottom": this.options.xlabel ? 90 : 70,
+     "left":   this.options.ylabel ? 120 : 45
   };
 
   this.size = {
@@ -64,32 +67,21 @@ SimpleGraph = function(elemid, options) {
   this.downy = Math.NaN;
 
   // this.dragged = this.selected = null;
-
+  this.circle_points = this.options.data
+  this.points = intersperseZeros(this.options.data)
   this.line = d3.svg.line()
       .x(function(d, i) { return this.x(this.points[i].x); })
       .y(function(d, i) { return this.y(this.points[i].y); });
 
+  
   var xrange =  (this.options.xmax - this.options.xmin),
       yrange = (this.options.ymax - this.options.ymin);
 
 
 
+ 
 
-  this.points = intersperseZeros(options.data)
 
-  this.circle_points = data.map(function(datum)
-    {
-      if(datum.y>0) 
-        {
-          return {x:datum.x,y:datum.y};
-        }
-      else
-      {
-        return {x:0,y:-10};
-      }
-    },
-    self);
-  
 
   this.vis = d3.select(this.chart).append("svg")
       .attr("width",  this.cx)
@@ -141,7 +133,7 @@ SimpleGraph = function(elemid, options) {
         .attr("class", "axis")
         .text(this.options.ylabel)
         .style("text-anchor","middle")
-        .attr("transform","translate(" + -40 + " " + this.size.height/2+") rotate(-90)");
+        .attr("transform","translate(" + -100 + " " + this.size.height/2+") rotate(-90)");
   }
   self.div = d3.select("body").append("div") 
       .attr("class", "tooltip")       
@@ -156,16 +148,23 @@ SimpleGraph.prototype.update = function() {
   var lines = this.vis.select("path").attr("d", this.line(this.points));
   
   var circle = this.vis.select("svg").selectAll("circle")
-      .data(this.circle_points, function(d) { return d; });
+      .data(this.circle_points);
+
+      // .data(this.circles(this.circle_points),function(d) { return d; });
+
+  circle
+      .attr("class", function(d) { return d === self.selected ? "selected" : null; })
+      .attr("cx",    function(d) { return self.x(d.x); })
+      .attr("cy",    function(d) { return self.y(d.y); });
 
   circle.enter().append("circle")
       .attr("class", function(d) { return d === self.selected ? "selected" : null; })
       .attr("cx",    function(d) { return self.x(d.x); })
       .attr("cy",    function(d) { return self.y(d.y); })
-      .attr("r", 10.0)
+      .attr("r", 6.0)
       .on("mouseover", function(d) {    
             self.div.transition().duration(200).style("opacity", .9);    
-            self.div.html(d.x + "<br/>"  + d.y).style("left", (d3.event.pageX) + "px").style("top", (d3.event.pageY - 28) + "px");  
+            self.div.html(d.x.toFixed(4) + "<br/>"  + d.y.toFixed(2)).style("left", (d3.event.pageX) + "px").style("top", (d3.event.pageY - 28) + "px");  
             })          
         .on("mouseout", function(d) {   
             self.div.transition().duration(500).style("opacity", 0); 
