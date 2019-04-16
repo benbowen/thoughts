@@ -1,0 +1,79 @@
+<p>Download the template below and complete as described below.</p>
+
+
+<table style="width:100%">
+  <tr>
+    <th><strong>Column title</th>
+    <th><strong>Description</th> 
+    <th><strong>Data type</th>
+    <th><strong>Example</th>
+  </tr>
+  <tr>
+    <td><strong>submissionID</td>
+    <td>The number of the submission ID from the Submission Form. <strong>Forgot your submission ID? Find it <a href= "project-begin.view?pageId=View%20Submissions">here</a></td> 
+    <td>Integer, required.</td>
+    <td>1</td>
+  </tr>
+  <tr>
+    <td><strong>descriptiveSampleName</td>
+    <td>Descriptive Sample Name</td> 
+    <td>Text, required</td>
+    <td>P simiae cell pellet in R2A medium</td>
+  </tr>
+  <tr>
+    <td><strong>containerAndMaterial</td>
+    <td>Container and material, include description, brand, size, product number</td> 
+    <td>Text, required</td>
+    <td>1.1mL Axygen Plate</td>
+  </tr>
+  <tr>
+    <td><strong>wellID</td>
+    <td>Well ID, for plates only</td> 
+    <td>Text</td>
+    <td>B2</td>
+  </tr>
+  <tr>
+    <td><strong>wellID</td>
+    <td>Well ID, for plates only</td> 
+    <td>Text</td>
+    <td>B2</td>
+  </tr>
+  <tr>
+    <td><strong>tubeOrPlateLabel</td>
+    <td>Tube or plate label</td> 
+    <td>Text, required</td>
+    <td>P.simiae pellets in DM</td>
+  </tr>
+  <tr>
+    <td><strong>sampleType</td>
+    <td>Sample type, select from the dropdown in this list</td> 
+    <td>Dropdown, required</td>
+    <td>cell pellet</td>
+  </tr>
+  <tr>
+    <td><strong>...</td>
+    <td>Fill out the rest as needed...</td> 
+    <td></td>
+    <td></td>
+  </tr>
+</table>
+
+<br>
+
+<div id="sampleUploadURL"></div>
+
+<script type="text/javascript">
+
+var uploadLocation = LABKEY.ActionURL.buildURL(
+	"experiment", 
+	"showUploadMaterials.view", 
+	LABKEY.ActionURL.getContainer(), 
+	{name: "original_sample", 
+	importMoreSamples: "true", 
+	returnUrl: LABKEY.ActionURL.getContainer() + "/project-begin.view?pageId=View%20Submissions"}
+	);
+
+var surl = '<p><h3>After the template is completed, <a href=' + uploadLocation + '>upload your samples</a></h3></p>';
+
+document.getElementById("sampleUploadURL").innerHTML = surl;
+</script>

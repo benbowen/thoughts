@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+
+.topnav{
+    border:1px solid #ccc;
+    border-width:1px 0;
+    list-style:none;
+    margin:0;
+    padding:0;
+    text-align:left;
+background-color: olivedrab;
+border-color:green;
+}
+
+.topnav li{
+    display:inline;
+
+}
+.topnav a{
+    display:inline-block;
+color:white;
+word-wrap: break-word;
+    max-width: 125px;
+    padding:10px;
+  text-align: center;
+  vertical-align: middle;
+}
+
+
+
+</style>
+</head>
+
+<body>
+
+<br>
+<div id='controls_1'></div>
+<br>
+<div id='controls_2'></div>
+<br>
+<div id='navbar_description'>Click on Processing Step to See those samples below:</div>
+<div class="topnav">
+  <a id=original_sample onClick= "loadResults()" href="#">Original Sample</a>
+  <a id=original_sample onClick= "loadResults()" href="#">Process Sample</a>
+  <a id=original_sample onClick= "loadResults()" href="#">Homogenized Sample</a>
+  <a id=original_sample onClick= "loadResults()" href="#">Lyophilized Sample</a>
+  <a id=original_sample onClick= "loadResults()" href="#">Concentrated Sample</a>
+  <a id=original_sample onClick= "loadResults()" href="#">Extracted Sample</a>
+  <a id=original_sample onClick= "loadResults()" href="#">Derivitized Sample</a>
+  <a id=original_sample onClick= "loadResults()" href="#">Resuspended Sample</a>
+  <a id=original_sample onClick= "loadResults()" href="#">Sample Ready For LCMS</a>
+  <a id=original_sample onClick= "loadResults()" href="#">LCMS Run</a>
+</div>
+<br>
+<div id='sumationresults'/>
+
+<div id='loadedresults'/>
+
+
+</body>
+
+<script type="text/javascript">
+
+     var qwp1 = new LABKEY.QueryWebPart({ 
+             renderTo: 'sumationresults', 
+             title: 'Sample Count Across Processing Steps', 
+         containerPath: 'Project Tracking',    
+             schemaName: 'samples', 
+             queryName: 'sum_query', 
+             buttonBarPosition: 'none' 
+             }); 
+
+LABKEY.Query.executeSql({
+    requiredVersion: 9.1,
+    schemaName: 'samples', // CHANGE TO THE RIGHT SCHEMA NAME (lists, samples, etc.)
+    sql: 'SELECT DISTINCT treatment_group FROM lcmsrun_sample', //CHANGE THE Name to the column you want to select and the 
+    success: onSuccess_1,
+    failure: onError
+});
+
+LABKEY.Query.executeSql({
+    requiredVersion: 9.1,
+    schemaName: 'samples', // CHANGE TO THE RIGHT SCHEMA NAME (lists, samples, etc.)
+    sql: 'SELECT DISTINCT mass_spectrometry FROM lcmsrun_sample', //CHANGE THE Name to the column you want to select and the 
+    success: onSuccess_2,
+    failure: onError
+});
+
+function onSuccess_1(results) {
+    var nameSelector = 'Please select the treatment group you want to view:<p><select id="listname_1" onchange="onNameSelect()">';
+	nameSelector += '<option value="namestart">Select a treatment group</option>';	
+	    for (var i = 0; i < results.rows.length; i++) {
+        	nameSelector += '<option value="' + results.rows[i].treatment_group.value + '">' + results.rows[i].treatment_group.value + '</option>'; 
+    	}
+	nameSelector += '</select>';
+    document.getElementById("controls_1").innerHTML = nameSelector;
+}
+
+function onSuccess_2(results) {
+    var nameSelector = 'Please select the mass spectrometry you want to view:<p><select id="listname_2" onchange="onNameSelect()">';
+	nameSelector += '<option value="namestart">Select mass spectrometry</option>';	
+	    for (var i = 0; i < results.rows.length; i++) {
+        	nameSelector += '<option value="' + results.rows[i].mass_spectrometry.value + '">' + results.rows[i].mass_spectrometry.value + '</option>'; 
+    	}
+	nameSelector += '</select>';
+    document.getElementById("controls_2").innerHTML = nameSelector;
+}
+
+
+function onError(errorInfo) {
+    alert(errorInfo.exception);
+}
+
+function onNameSelect() {
+	var x = document.getElementById("listname_1").value;
+	if (x == "namestart") {
+    		document.getElementById("loadedresults").innerHTML = "You did not select a valid name. Please select a name from the dropdown above.";
+	} else {
+    		document.getElementById("loadedresults").innerHTML = "Click Icon to View:<p><div id='loadedresults'></div>";
+	}
+}
+
+function loadResults(){
+
+var loadwp = new LABKEY.QueryWebPart({
+	renderTo: 'loadedresults',
+	schemaName: 'samples', //change schemaName as necessary
+	queryName: 'lcmsrun_sample', //change queryName as necessary
+	frame: 'none',
+	buttonBarPosition: 'top',
+	showRecordSelectors: false,
+	showDetailsColumn: false,
+	showUpdateColumn: false,
+	filters: [LABKEY.Filter.create('treatment_group', document.getElementById("listname_1").value, LABKEY.Filter.Types.EQUAL),
+                  LABKEY.Filter.create('mass_spectrometry', document.getElementById("listname_2").value, LABKEY.Filter.Types.EQUAL)]
+	});
+}
+
+
+
+</script>
